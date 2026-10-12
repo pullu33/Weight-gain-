@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weight Gain Buddy</title>
+<style>
+:root{--green:#1e7a55;--bg:#f4f7f5;--card:#fff;--text:#1b2922;--muted:#607067;--line:#dce7e0}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Devanagari",sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,#155d41,#27966a);color:white;padding:24px 18px 28px;border-radius:0 0 24px 24px}
+header h1{font-size:25px;margin:0 0 7px}header p{margin:0;opacity:.9}
+main{max-width:760px;margin:auto;padding:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:-8px}
+.stat,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 9px #163d2910}
+.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{font-size:22px}
+.card{margin:13px 0}.card h2{font-size:18px;margin:0 0 10px}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+button,input,select{font:inherit;border-radius:10px;border:1px solid var(--line);padding:10px;background:white;color:var(--text)}
+button{cursor:pointer;background:var(--green);color:white;border:0;font-weight:650}button.secondary{background:#e9f4ee;color:#155d41}button:disabled{opacity:.5}
+.notice{font-size:13px;color:var(--muted);line-height:1.5}
+.progress{height:9px;background:#e5eee8;border-radius:20px;overflow:hidden;margin:10px 0}.progress span{display:block;height:100%;width:0;background:var(--green)}
+.meal{display:grid;grid-template-columns:68px 1fr auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}.meal:last-child{border:0}
+.time{font-weight:750;color:var(--green)}.meal h3{font-size:15px;margin:0 0 4px}.meal p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}.meal input[type=checkbox]{width:20px;height:20px;accent-color:var(--green);margin-top:4px}
+.watergrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.water{background:#f4faf7;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.water label{font-size:13px;display:block}.water input{width:18px;height:18px;accent-color:var(--green)}
+label{font-size:14px}.settings{display:flex;gap:8px;flex-wrap:wrap}.settings label{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
+#status{font-size:13px;color:var(--muted);margin-top:8px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:10px 0 28px}
+@media(max-width:420px){.stats{gap:6px}.stat{padding:10px}.stat strong{font-size:19px}.meal{grid-template-columns:60px 1fr auto}.watergrid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><h1>💪 Weight Gain Buddy</h1><p>50 kg से 60 kg तक — नियमित भोजन, पानी और प्रगति</p></header>
+<main>
+<section class="stats">
+ <div class="stat"><small>अभी का वजन</small><strong id="currentStat">50 kg</strong></div>
+ <div class="stat"><small>लक्ष्य</small><strong>60 kg</strong></div>
+ <div class="stat"><small>बाकी</small><strong id="leftStat">10 kg</strong></div>
+</section>
+<section class="card">
+<h2>🔔 रिमाइंडर चालू करें</h2>
+<p class="notice">घंटी/नोटिफिकेशन के लिए यह पेज खुला रखें और अनुमति दें। फोन लॉक या ब्राउज़र बंद होने पर रिमाइंडर हर डिवाइस पर भरोसेमंद तरीके से नहीं बज सकते।</p>
+<div class="row"><button id="enableBtn">रिमाइंडर चालू करें</button><button class="secondary" id="testBtn">घंटी टेस्ट करें</button></div>
+<div id="status">रिमाइंडर बंद हैं।</div>
+<div class="settings" style="margin-top:12px">
+<label>रिमाइंडर ध्वनि
+<select id="sound"><option value="on">चालू</option><option value="off">बंद</option></select></label>
+<label>पानी का लक्ष्य
+<select id="waterGoal"><option value="2000">2 लीटर</option><option value="2500" selected>2.5 लीटर</option><option value="3000">3 लीटर</option></select></label>
+</div>
+</section>
+<section class="card">
+<h2>🍳 आज का डाइट शेड्यूल</h2>
+<p class="notice">यह सामान्य उदाहरण है। भूख, गतिविधि और स्वास्थ्य के अनुसार मात्रा बदलें। वजन धीरे-धीरे बढ़ाएँ; शुरुआत में रोज़ लगभग 300–500 अतिरिक्त कैलोरी मदद कर सकती हैं।</p>
+<div id="meals"></div>
+</section>
+<section class="card">
+<h2>💧 पानी पीने का शेड्यूल</h2>
+<p class="notice">हर बार लगभग 200–250 ml; गर्मी/व्यायाम में जरूरत बदल सकती है। जबरदस्ती बहुत ज्यादा पानी न पिएँ।</p>
+<div class="watergrid" id="waters"></div>
+<div class="row" style="margin-top:12px"><strong id="waterCount">0 ml / 2500 ml</strong><button class="secondary" id="resetWater">पानी रीसेट</button></div>
+<div class="progress"><span id="waterProgress"></span></div>
+</section>
+<section class="card">
+<h2>⚖️ वजन दर्ज करें</h2>
+<div class="row"><label>आज का वजन (kg)<br><input id="weightInput" type="number" min="30" max="250" step=".1" value="50"></label><button id="saveWeight">वजन सेव करें</button></div>
+<p class="notice" id="weightHistory">अभी कोई नया वजन दर्ज नहीं है। सप्ताह में एक बार, सुबह शौच के बाद और नाश्ते से पहले वजन लेना बेहतर है।</p>
+</section>
+<section class="card">
+<h2>🥗 एक दिन का भोजन सुझाव</h2>
+<ul class="notice">
+<li><b>08:30 नाश्ता:</b> 2 अंडे + 2 ब्रेड/पराठे + दूध या दही + 1 केला।</li>
+<li><b>11:00:</b> केला-दूध स्मूदी या दही और मुट्ठीभर मेवे/मूँगफली।</li>
+<li><b>13:30 दोपहर:</b> चावल/रोटी, दाल, सब्जी, दही और चिकन (लगभग 100–150 g पका हुआ) या विकल्प।</li>
+<li><b>16:30:</b> सैंडविच/भुना चना/मूँगफली और फल।</li>
+<li><b>19:00:</b> व्यायाम हो तो उसके बाद दूध/दही और अंडे या भोजन।</li>
+<li><b>20:30 रात:</b> रोटी/चावल, दाल/चिकन/अंडे और सब्जी।</li>
+<li><b>22:30:</b> भूख हो तो दूध या दही; पेट भरा हो तो छोड़ दें।</li>
+</ul>
+<p class="notice">अगर किडनी/दिल की बीमारी, डायबिटीज़, कोई खास डाइट प्रतिबंध या लगातार अनचाहा वजन कम हो रहा हो, तो डाइट बदलने से पहले डॉक्टर/डायटीशियन से सलाह लें।</p>
+</section>
+<footer>आपकी प्रगति रोज़ के छोटे कदमों से बनेगी। यह शुरुआती वेब ऐप है।</footer>
+</main>
+<script>
+const mealData=[
+["08:30","नाश्ता","2 अंडे + ब्रेड/पराठा, 1 केला और दूध/दही"],
+["11:00","सुबह का स्नैक","दूध-केला स्मूदी या दही + मूँगफली/मेवे"],
+["13:30","दोपहर का खाना","रोटी/चावल + दाल + सब्जी + दही + चिकन/अंडे"],
+["16:30","शाम का स्नैक","सैंडविच या भुना चना/मूँगफली + फल"],
+["19:00","वर्कआउट के आसपास","दूध/दही और अंडा; जिम न हो तो हल्का स्नैक"],
+["20:30","रात का खाना","रोटी/चावल + दाल/चिकन/अंडे + सब्जी"],
+["22:30","सोने से पहले (वैकल्पिक)","भूख हो तो एक गिलास दूध या दही"]
+];
+const waterTimes=["08:10","09:45","11:45","12:45","14:45","16:00","17:30","18:45","20:00","21:30","22:45"];
+const mealsEl=document.getElementById("meals"), watersEl=document.getElementById("waters");
+mealData.forEach((m,i)=>{const div=document.createElement("div");div.className="meal";div.innerHTML=`<div class="time">${m[0]}</div><div><h3>${m[1]}</h3><p>${m[2]}</p></div><input aria-label="भोजन पूरा हुआ" type="checkbox" data-meal="${i}">`;mealsEl.appendChild(div)});
+waterTimes.forEach((t,i)=>{const d=document.createElement("div");d.className="water";d.innerHTML=`<label><input type="checkbox" data-water="${i}"> 💧 ${t}<br><span>200–250 ml</span></label>`;watersEl.appendChild(d)});
+let enabled=false,lastFired="",audioCtx=null;
+function updateWater(){const checks=[...document.querySelectorAll("[data-water]")];const ml=checks.reduce((s,c)=>s+(c.checked?225:0),0);const goal=+document.getElementById("waterGoal").value;document.getElementById("waterCount").textContent=`${ml} ml / ${goal} ml`;document.getElementById("waterProgress").style.width=Math.min(100,ml/goal*100)+"%";}
+document.querySelectorAll("[data-water]").forEach(c=>c.addEventListener("change",updateWater));
+document.getElementById("resetWater").onclick=()=>{document.querySelectorAll("[data-water]").forEach(c=>c.checked=false);updateWater()};
+function ring(){if(document.getElementById("sound").value==="off")return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();[0,.35,.7].forEach(delay=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type="sine";o.frequency.value=880;g.gain.value=.16;o.connect(g);g.connect(audioCtx.destination);o.start(audioCtx.currentTime+delay);o.stop(audioCtx.currentTime+delay+.22)})}catch(e){}}
+function notify(title,body){ring();if("Notification"in window&&Notification.permission==="granted"){new Notification(title,{body,tag:"weight-gain-reminder"})}else{alert(title+"\\n"+body)}}
+document.getElementById("enableBtn").onclick=async()=>{if(!("Notification"in window)){document.getElementById("status").textContent="इस ब्राउज़र में नोटिफिकेशन उपलब्ध नहीं हैं; पेज खुला रखें।";enabled=true;return}let p=Notification.permission;if(p!=="granted")p=await Notification.requestPermission();enabled=true;document.getElementById("status").textContent=p==="granted"?"रिमाइंडर चालू हैं। इस पेज को खुला रखें।":"अनुमति नहीं मिली; पेज खुला रहने पर अलर्ट दिखेगा।";};
+document.getElementById("testBtn").onclick=()=>notify("टेस्ट रिमाइंडर","चलो, पानी पी लो! 💧");
+function checkTime(){if(!enabled)return;const d=new Date(),hh=String(d.getHours()).padStart(2,"0"),mm=String(d.getMinutes()).padStart(2,"0"),key=d.toDateString()+" "+hh+":"+mm;if(key===lastFired)return;const t=hh+":"+mm;const meal=mealData.find(m=>m[0]===t);const water=waterTimes.includes(t);if(meal||water){lastFired=key;if(meal)notify("खाने का समय 🍽️",meal[1]+": "+meal[2]);else notify("पानी पीने का समय 💧","एक गिलास पानी पी लें।");}}
+setInterval(checkTime,15000);
+document.getElementById("saveWeight").onclick=()=>{const w=Number(document.getElementById("weightInput").value);if(!w||w<30||w>250){alert("कृपया सही वजन डालें।");return}const hist=JSON.parse(localStorage.getItem("wg_hist")||"[]");hist.push({date:new Date().toLocaleDateString("hi-IN"),w});localStorage.setItem("wg_hist",JSON.stringify(hist));localStorage.setItem("wg_current",w);renderWeight();};
+function renderWeight(){const hist=JSON.parse(localStorage.getItem("wg_hist")||"[]"),w=Number(localStorage.getItem("wg_current")||50);document.getElementById("currentStat").textContent=w+" kg";document.getElementById("leftStat").textContent=Math.max(0,60-w).toFixed(1).replace(".0","")+" kg";document.getElementById("weightInput").value=w;document.getElementById("weightHistory").textContent=hist.length? "हाल की प्रविष्टियाँ: "+hist.slice(-5).map(x=>x.date+" — "+x.w+" kg").join(" | "):"अभी कोई नया वजन दर्ज नहीं है। सप्ताह में एक बार, सुबह शौच के बाद और नाश्ते से पहले वजन लेना बेहतर है।";}
+renderWeight();updateWater();
+</script>
+</body></html>
